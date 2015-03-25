@@ -51,32 +51,50 @@ new_img.save("lena_4.bmp")
 
 # ex 7
 
+# plt.figure("ex 7")
+# lsd_w = 100
+# lsd_h = 100
+
+# lsd = np.zeros((lsd_h, lsd_w))
+# cursor = [lsd_h/2, lsd_w/2]
+
+# r1 = np.zeros((lsd_w/2, 2))
+# r2 = np.zeros((lsd_w/2, 2))
+
+# for i in range(lsd_w/2):
+#     r1[i] = [i + lsd_w/2, lsd_h/2]
+#     r2[i] = [i + lsd_w/2, i*np.tan(2*np.pi/18.)]
+
+# print r1
+# print r2
+
+# for x in range(lsd_w):
+#     for y in range(lsd_h):
+#         if (x > r2[x][0])
+#         if (x > r2[y][0]+lsd_w/2 & y > r2[y][])
+#             if (x > r2[x-lsd_w/2])
+
 plt.figure("ex 7")
-lsd_w = 100
-lsd_h = 100
 
-lsd = np.zeros((lsd_h, lsd_w))
-cursor = [lsd_h/2, lsd_w/2]
+w = 100
+h = 100
 
-r1 = np.zeros((lsd_w/2, 2))
-r2 = np.zeros((lsd_w/2, 2))
+star_burst = np.ones((h, w))*255
 
-for i in range(lsd_w/2):
-    r1[i] = [i + lsd_w/2, lsd_h/2]
-    r2[i] = [i + lsd_w/2, i*np.tan(2*np.pi/18.)]
+c = [w/2, h/2]
 
-print r1
-print r2
+for x in range(w):
+    for y in range(h):
+        v = [x - c[0], c[1] - y]
+        try:
+            a = np.arctan(float(v[0])/v[1])
+        except Exception, e:
+            a = 0
+        for i in range(5):
+            if (i%2 == 0):
+                if ( (a >= (2*np.pi/18.*i)) & (a < (2*np.pi/18.*(i+1)) ) ):
+                    star_burst[x, y] = 0
 
-for x in range(lsd_w):
-    for y in range(lsd_h):
-        if (x > r2[x][0])
-        if (x > r2[y][0]+lsd_w/2 & y > r2[y][])
-            if (x > r2[x-lsd_w/2])
-
-
-
-
-plt.imshow(lsd, cmap='gray')
+plt.imshow(star_burst, cmap='gray')
 
 plt.show()
