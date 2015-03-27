@@ -58,7 +58,7 @@ w = 400
 h = 400
 
 star_burst = np.ones((h, w))*255
-angle = 16
+angle = 20
 
 rad = angle * np.pi / 180.
 
@@ -68,22 +68,15 @@ for y in range(h):
         vy = float(h/2) - y
 
         if vx == 0:
-            a = .1
+            a = np.pi/2.
+            if vy < 0:
+                a += np.pi
         else:
             a = np.arctan(vy/vx)
-        # 1 quadrante
-        if (vx > 0) & (vy > 0):
-            pass
 
-        # 2 quadrante
-        if (vx < 0) & (vy > 0):
+        if vx < 0:
             a += np.pi
 
-        # 3 quadrante
-        if (vx < 0) & (vy < 0):
-            a += np.pi
-
-        # 4 quadrante
         if (vx > 0) & (vy < 0):
             a += 2*np.pi
 
