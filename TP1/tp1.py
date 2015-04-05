@@ -62,6 +62,12 @@ if __name__ == "__main__":
     plt.figure("ex 4")
     hist = x_img.histogram()
     plt.plot(hist)
+    gray_scale_num = 0
+    print len(hist)
+    for i in range(len(hist)):
+        if hist[i] != 0:
+            gray_scale_num += 1
+    print gray_scale_num
 
     # ex 5
     plt.figure("ex 5")
@@ -73,14 +79,19 @@ if __name__ == "__main__":
         plt.imshow(y, cmap='gray')
 
     # ex 6
-    plt.figure("ex 6")
-    y = x >= 2**5
-    plt.imshow(y, cmap='gray')
-    new_img = Image.fromarray(y.astype('uint8')*255 ,'L')
+    plt.figure()
+    plt.title('Exercicio 6')
+    x=np.array(x_gray)
+    for k in range(len(x[0])):
+       for j in range(len(x[1])):
+            x[k][j] = x[k][j] >> 4 << 4
+
+    new_img = Image.fromarray(x.astype('uint8'),'L')
     new_img.save("lena_4.bmp")
+    plt.imshow(x, cmap='gray')
 
     # ex 7
-    star_burst(20)
+    #star_burst(20)
 
     plt.show()
 
