@@ -7,7 +7,7 @@ def bin_code_shannon_fano(symb, prob):
 
   #sorted(prob, reverse=True)
   #sorted_symb = np.array(len(symb))
-  sorted_symb = [0]*len(symb)
+  sorted_symb = np.zeros(len(symb))
 
   b = 0
   s = 0
@@ -20,7 +20,7 @@ def bin_code_shannon_fano(symb, prob):
   while(l < len(symb)):
     for i in range(len(prob)):
       if (prob[i] == b):
-        sorted_symb[l] = symb[i]
+        sorted_symb[l] = i
         l += 1
 
     for i in range(len(prob)):
@@ -29,6 +29,7 @@ def bin_code_shannon_fano(symb, prob):
     b = s
     s = 0
 
+  
 
   return sorted_symb
 
@@ -41,7 +42,7 @@ if __name__ == "__main__":
 
   document_text = "babe"
   symbols = ["a","b","c","d","e"]
-  symbols = [1,2,3,4,5]
+  #symbols = [1,2,3,4,5]
   probability = [.25,.5,.0,.0,.25]
 
   # function calls
