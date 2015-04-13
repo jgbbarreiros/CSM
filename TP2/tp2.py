@@ -41,14 +41,12 @@ def code_tree(prob):
 # main
 
 if __name__ == "__main__":
-  
-  # variables
-  document_text = "babe"
-  symbols = ["a","b","c","d","e"]
-  #symbols = [1,2,3,4,5]
-  probability = [.10,.20,.30,.10,.30]
-  # .20, .20, .20, .10, .10, .10, .5, .5
 
-  # function calls
+  # ex 1
+  probability = [.10,.20,.30,.10,.30]
 
   bin_table = bin_code_shannon_fano(symbols, probability)
+
+  # ex 2
+
+  
