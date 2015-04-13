@@ -4,66 +4,39 @@ import numpy as np
 # functions
 
 def bin_code_shannon_fano(symb, prob):
-
-  #sorted(prob, reverse=True)
-  #sorted_symb = np.array(len(symb))
-  # sorted_symb = np.zeros(len(symb))
-
-  # b = 0
-  # s = 0
-  # l = 0
-
-  # for i in range(len(prob)):
-  #   if (prob[i] > b):
-  #     b = prob[i]
-
-  # while(l < len(symb)):
-  #   for i in range(len(prob)):
-  #     if (prob[i] == b):
-  #       sorted_symb[l] = prob[i]
-  #       l += 1
-
-  #   for i in range(len(prob)):
-  #     if (s < prob[i] < b):
-  #         s = prob[i]
-  #   b = s
-  #   s = 0
+  i = np.argsort(prob)[::-1][:len(prob)]
   s = sorted(prob, reverse=True)
-  print s
-  return a(s)
+  c = code_tree(s)
+  f = np.empty((len(c)), dtype='|S' + str(len(c)))
+
+  for x in range(len(c)):
+    f[i[x]] = c[x]
+
+  return f
 
 
   # [.20, .20, .20, .10, .10, .10, .5, .5]
-def a(prob):
-  print "(-----------------"
+def code_tree(prob):
   for i in range(len(prob)):
     l = prob[:i+1]
     r = prob[i+1:]
     if (sum(l) >= sum(r)):
       break
-  print "l = " + str(l)
-  print "r = " + str(r)
   if len(l) == 1:
-    fl = np.array(["0"])
-    print "fim l"
+    fl = np.array(["0"], dtype='|S100')
   else:
-    fl = a(l)
+    fl = code_tree(l)
     for i in range(len(fl)):
       fl[i] = "0" + fl[i]
-    print "fl = " + str(fl)
 
   if len(r) == 1:
-    fr = np.array(["1"])
-    print "fim r"
+    fr = np.array(["1"], dtype='|S100')
   else:
-    fr = a(r)
-    print "fr = " + str(fr)
+    fr = code_tree(r)
     for i in range(len(fr)):
       fr[i] = "1" + fr[i]
-    print "fr = " + str(fr)
-  print np.hstack((fl, fr))
-  print "-----------------)"
   return np.hstack((fl, fr))
+
 
 # main
 
@@ -73,11 +46,9 @@ if __name__ == "__main__":
   document_text = "babe"
   symbols = ["a","b","c","d","e"]
   #symbols = [1,2,3,4,5]
-  probability = [.25,.5,.25]
+  probability = [.10,.20,.30,.10,.30]
   # .20, .20, .20, .10, .10, .10, .5, .5
 
   # function calls
 
   bin_table = bin_code_shannon_fano(symbols, probability)
-
-  print bin_table
