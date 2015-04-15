@@ -43,7 +43,7 @@ def code_tree(prob):
 # main
 
 if __name__ == "__main__":
-
+    print 'hello'
     # ex 1
     probability = [.10, .20, .30, .10, .30]
 
