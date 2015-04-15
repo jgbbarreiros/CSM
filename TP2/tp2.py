@@ -1,6 +1,7 @@
 # imports
 import numpy as np
 from PIL import Image
+import time
 
 # functions
 def bin_code_shannon_fano(prob):
@@ -77,6 +78,8 @@ def zeros(hist):
 # main
 if __name__ == "__main__":
 
+    millis = lambda: int(round(time.time() * 1000))
+
     # ex 1
     symbols = np.array(["a","b","c","d","e"])
     table = np.array(['111', '10', '01', '110', '00'])
@@ -95,6 +98,10 @@ if __name__ == "__main__":
     #A
     lena = Image.open("lenac.tif").convert("L")
     hist = lena.histogram()
-    print  bin_code_shannon_fano(zeros(hist)[0])
+    before = millis()
+    lena_code = bin_code_shannon_fano(zeros(hist)[0])
+    diff = millis() - before
+    print diff
+
 
     #B
