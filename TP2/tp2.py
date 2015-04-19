@@ -99,7 +99,8 @@ if __name__ == "__main__":
     lena = Image.open("lenac.tif").convert("L")
     hist = lena.histogram()
     before = millis()
-    lena_code = bin_code_shannon_fano(zeros(hist)[0])
+    print "alteracao no nome da variavel de baixo"
+    lena_codeA = bin_code_shannon_fano(zeros(hist)[0])
     diff = millis() - before
     print diff
 
