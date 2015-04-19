@@ -93,15 +93,37 @@ if __name__ == "__main__":
     print compress(symbols,bin_code_shannon_fano(probability),symbols)
     print decompress(symbols, table, '111100111000')
 
-    #--------------------------4-----------------------------
+    # 4
 
     #A
-    lena = Image.open("lenac.tif").convert("L")
-    hist = lena.histogram()
+    lena = Image.open("lenac.tif")
+    hist = lena.convert("L").histogram()
     before = millis()
     lena_code = bin_code_shannon_fano(zeros(hist)[0])
     diff = millis() - before
     print diff
+
+    print hist
+    print lena_code[:4]
+    img = np.array(lena)
+    print lena.size[0]
+
+    print np.zeros((3,2))
+
+    """
+    hist = [3, 1, 3, 0, 6]
+    hist_no_zeros = [3, 1, 3, 6]
+    idx = [0, 1, 2, 4]
+
+    code = ['01', '00', '101', '111']
+    """
+    #img  = [162, 162, 162]
+    a = np.zeros((lena.size[1], lena.size[0]))
+    for y in range(lena.size[1]): # linha
+      for x in range(lena.size[0]): # coluna
+        for i in range(len(idx)): #
+            if(img[y][x] == idx[i]):
+                a[y][x] = code[i]
 
 
     #B
