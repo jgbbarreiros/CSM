@@ -103,5 +103,7 @@ if __name__ == "__main__":
     diff = millis() - before
     print diff
 
+    print "test"
+
 
     #B
