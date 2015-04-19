@@ -96,8 +96,8 @@ if __name__ == "__main__":
     # 4
 
     #A
-    lena = Image.open("lenac.tif")
-    hist = lena.convert("L").histogram()
+    lena = Image.open("lenac.tif").convert("L")
+    hist = lena.histogram()
     before = millis()
     lena_code = bin_code_shannon_fano(zeros(hist)[0])
     diff = millis() - before
@@ -107,16 +107,31 @@ if __name__ == "__main__":
     print lena_code[:4]
     img = np.array(lena)
     print lena.size[0]
-
     print np.zeros((3,2))
+
+    j=0
+    for i in range(len(hist)):
+       if(hist[i]==0):
+           j+=1
+
+    idx = np.zeros(len(hist) - j)
+    code = np.zeros(len(hist) - j)
+
+    c=0
+    for i in range(len(hist)):
+            if(hist[i]!=0):
+                idx[c]=i
+                code[c]=hist[i]
+                c+=1
+
 
     """
     hist = [3, 1, 3, 0, 6]
     hist_no_zeros = [3, 1, 3, 6]
     idx = [0, 1, 2, 4]
-
     code = ['01', '00', '101', '111']
     """
+
     #img  = [162, 162, 162]
     a = np.zeros((lena.size[1], lena.size[0]))
     for y in range(lena.size[1]): # linha
