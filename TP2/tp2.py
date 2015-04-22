@@ -2,6 +2,7 @@
 import numpy as np
 from PIL import Image
 import time
+import binascii
 
 # functions
 def bin_code_shannon_fano(prob):
@@ -117,18 +118,19 @@ if __name__ == "__main__":
 
     print hist_no_zeros[:4]
     print lena_code[:4]
-    img = np.array(lena)
-    print img
-
+    img = np.array(lena, dtype=np.float64)
     # img  = [162, 162, 162]
     img_code = np.zeros((lena.size[1], lena.size[0]))
-    print img_code
-    for y in range(lena.size[1]):  # linha
-         for x in range(lena.size[0]):  # coluna
-             for i in range(len(hist_no_zeros)):  #
-                 if img[y][x] == hist_no_zeros[i]:
-                     pass
-                     #escrever para um ficheiro o lena_code[i]
+    f = open('myfile','wb')
+    f1 = open('myfile1','wb')
+    # for y in range(lena.size[1]):  # linha
+    #      for x in range(lena.size[0]):  # coluna
+    #          for i in range(len(hist_idx)):  #
+    #              if img[y][x] == hist_idx[i]:
+    #                 f.write(lena_code[i])
+    n = int(bin(110100001100101011011000110110001101111), 2)
+    f1.write(binascii.unhexlify('%x' % n))
+    f.close()
 
     # print lena.size[0]
     # print np.zeros((3, 2))
