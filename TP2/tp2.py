@@ -154,19 +154,21 @@ def decompress2(symb, table, bits):
 #code = [0,1,1,0,0,1,1,0,0,]
 #dic = {'10':24, '11':25}
 def decompress(code, dic):
-    symb = ''
+    symb = ""
+    pos = 0
     size = [512,512]
     decomp_img = np.zeros((size[0],size[1]))
-    print '0'
-    for y in range(size[0]):  #linha
-        print 'linha'
+    for y in range(size[0]): # linha
+        print decomp_img
         for x in range(size[1]): # coluna
-            print x
-            for i in range(len(code)):
-                symb += str(code[i])
+            for i in range(pos, len(code)):
+                symb += str(code[pos])
+                # print symb
                 if dic.get(symb) != None:
                     decomp_img[y][x] = dic.get(symb)
-                    symb = ''
+                    symb = ""
+                    pos = i
+                    break
     return decomp_img
 
 
