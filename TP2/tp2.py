@@ -132,6 +132,14 @@ def write(code, file_name):
     file_w.write(img)
     file_w.close()
 
+def read(file_name):
+    file_r = open(file_name, 'rb')
+    img = file_r.read()
+    code = np.zeros(len(img), dtype=np.uint8)
+    for i in range(len(code)):
+        code[i] = ord(img[i])
+    return np.unpackbits(code)[:-1]
+
 def decompress(symb, table, bits):
     word = ''
     aux = ''
@@ -200,6 +208,15 @@ if __name__ == "__main__":
 
     print "lena comp (compress):"
     print lena_comp
+    print len(lena_comp)
     print str(temp2 - temp1) + " milliseconds"
     print
 
+    lena_comp2 = read('lena.txt')
+    print lena_comp2
+    print len(lena_comp2)
+
+    for i in range(len(lena_comp2)):
+        if lena_comp[i] != lena_comp2[i]:
+            print lena_comp[i]
+            print lena_comp2[i]
