@@ -2,19 +2,54 @@
 import numpy as np
 from PIL import Image
 import time
-import binascii
 
 # functions
-def bin_code_shannon_fano(prob):
-    i = np.argsort(prob)[::-1][:len(prob)]
-    s = sorted(prob, reverse=True)
+def shannon_fano(hist):
+
+    clean_hist = zeros(hist)
+
+    hist_no_zeros = clean_hist[0]
+    hist_idx = clean_hist[1]
+
+    print "hist no zeros / idx:"
+    print hist_no_zeros[:10]
+    print hist_idx[:10]
+    print
+
+    i = np.argsort(hist_no_zeros)[::-1][:len(hist_no_zeros)]
+    s = sorted(hist_no_zeros, reverse=True)
     c = code_tree(s)
     f = np.empty((len(c)), dtype='|S' + str(len(c)))
 
     for x in range(len(c)):
         f[i[x]] = c[x]
-    return f
 
+    num_bits_symb = media_bits(f)
+
+    print "numero medio de bits por simbolo:"
+    print num_bits_symb
+    print
+
+    print "entropia:"
+    print "falta a entropia"
+    print
+
+    return dic(f, hist_idx)
+
+def zeros(hist):
+    size = 0
+    for i in range(len(hist)):
+        if hist[i] != 0:
+            size += 1
+    result = np.zeros((2, size))
+
+    aux = 0
+    for i in range(len(hist)):
+        if hist[i] != 0:
+            result[0][aux] = hist[i]
+            result[1][aux] = i
+            aux += 1
+    return result
 
 def code_tree(prob):
     l = 0
@@ -39,46 +74,74 @@ def code_tree(prob):
             fr[i] = '1' + str(fr[i])
     return np.hstack((fl, fr))
 
+def media_bits(symb):
+    total = len(symb)
+    soma = 0
+    for i in range(total):
+        soma +=len(symb[i])
+    return soma/float(total)
 
-def compress(symb, table, word):
+def dic(symb, idx):
+    dic = {}
+    for i in range(len(idx)):
+        c = str(symb[i])
+        dic.update({idx[i]:c})
+    return dic
+
+def compress2(symb, table, word):
     bits = ''
     for i in range(len(word)):
         for j in range(len(symb)):
-            if (word[i] == symb[j]):
-                bits = bits + str(table[j])
+            if word[i] == symb[j]:
+                bits += str(table[j])
                 j = -1
     return bits
 
+def compress(data, dic):
+    code_str=''
+    row_size = len(data)
+    col_size = len(data[0])
+    for y in range(row_size):  #linha
+        for x in range(col_size):  #coluna
+            code_str += dic[data[y][x]]
 
-# symbols = ["a","b","c","d","e"]
-#table = ['111' '10' '01' '110' '00']
-#bits = 111100111000
+    # size_str = ''
+    # size_str += str(bin(row_size)[2:]) + str(bin(col_size)[2:])
+
+
+    # len(size_str) + len(dic_comp) +
+    code = np.zeros(len(code_str), dtype=np.uint8)
+    # pos = 0
+
+
+    # for i in range(len(size_str)):
+    #     code[pos] = size_str[i]
+    #     pos += 1
+
+    for i in range(len(code)):
+        code[i] = code_str[i]
+        # pos += 1
+    return code
+
+def write(code, file_name):
+    packed = np.packbits(code)
+    file_w = open(file_name, 'wb')
+    img = ''
+    for i in range(len(packed)):
+        img += str(chr(int(packed[i])))
+    file_w.write(img)
+    file_w.close()
+
 def decompress(symb, table, bits):
     word = ''
     aux = ''
     for i in range(len(bits)):
         aux += bits[i]
         for j in range(len(symb)):
-            if (aux == table[j]):
+            if aux == table[j]:
                 word += symb[j]
                 aux = ''
     return word
-
-
-def zeros(hist):
-    size = 0
-    for i in range(len(hist)):
-        if hist[i] != 0:
-            size += 1
-    result = np.zeros((2, size))
-
-    aux = 0
-    for i in range(len(hist)):
-        if hist[i] != 0:
-            result[0][aux] = hist[i]
-            result[1][aux] = i
-            aux += 1
-    return result
 
 # main
 if __name__ == "__main__":
@@ -86,77 +149,57 @@ if __name__ == "__main__":
     millis = lambda: int(round(time.time() * 1000))
 
     # ex 1
-    symbols = np.array(["a", "b", "c", "d", "e"])
+    print "ex 1"
+    print "####\n"
+    word = 'babe'
+    symbols = np.array(['a', 'b', 'c', 'd', 'e'])
     table = np.array(['111', '10', '01', '110', '00'])
     probability = [.10, .20, .30, .10, .30]
-    bin_table = bin_code_shannon_fano(probability)
-
-    print bin_table
+    idx = [0, 1, 2, 3, 4]
+    # bin_table = bin_code_shannon_fano(probability)
+    # print bin_table
+    print "\n"
 
     # ex 2 e 3
-    print bin_code_shannon_fano(probability)
-    print compress(symbols, bin_code_shannon_fano(probability), symbols)
-    print decompress(symbols, table, '111100111000')
+    print "ex 2 e 3"
+    print "########\n"
+    # comp = compress(symbols, bin_table, word)
+    # print comp
+    # decomp = decompress(symbols, table, comp)
+    # print decomp
+    print "\n"
 
     # ex 4
+    print "ex 4"
+    print "####\n"
 
     # A
     lena = Image.open("lenac.tif").convert("L")
-    hist = lena.histogram()
+    lena_data = np.array(lena)
+    print "lena:"
+    print lena_data[:2]
+    print
 
-    hist_no_zeros = zeros(hist)[0]
-    hist_idx = zeros(hist)[1]
+    hist = lena.histogram()
+    print "hist:"
+    print hist[:30]
+    print
 
     before = millis()
-    lena_code = bin_code_shannon_fano(hist_no_zeros)
-    diff = millis() - before
-    # file = open('file_name3', 'wb')
-    # file.write()
+    lena_dic = shannon_fano(hist)
+    temp1 = millis()
 
-    # print diff
-    #
+    print "lena code (shannon fano):"
+    print lena_dic
+    print str(temp1 - before) + " milliseconds"
+    print
 
-    print hist_no_zeros[:4]
-    print lena_code[:4]
-    img = np.array(lena, dtype=np.float64)
-    # img  = [162, 162, 162]
-    img_code = np.zeros((lena.size[1], lena.size[0]))
-    f = open('myfile','wb')
-    f1 = open('myfile1','wb')
-    # for y in range(lena.size[1]):  # linha
-    #      for x in range(lena.size[0]):  # coluna
-    #          for i in range(len(hist_idx)):  #
-    #              if img[y][x] == hist_idx[i]:
-    #                 f.write(lena_code[i])
-    n = int(bin(110100001100101011011000110110001101111), 2)
-    f1.write(binascii.unhexlify('%x' % n))
-    f.close()
+    lena_comp = compress(lena_data, lena_dic)
+    write(lena_comp, 'lena.txt')
+    temp2 = millis()
 
-    # print lena.size[0]
-    # print np.zeros((3, 2))
+    print "lena comp (compress):"
+    print lena_comp
+    print str(temp2 - temp1) + " milliseconds"
+    print
 
-    # '0000' '1111' '2222' '3333'
-    # '0000111122223333'
-    # '00001111'
-
-    # [[1,1,1,1,1,1,1,1,1,1,], [1,1,1,1,1,1,1,1,1,0,0]]
-    # [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0]
-    # [[1,1,1,1,1,1,1,1], [1,1,1,1,1,1,1,1], [1,1,1,0,0,0,0,0]]
-
-    """
-    hist = [3, 1, 3, 0, 6]
-    hist_no_zeros = [3, 1, 3, 6]
-    idx = [0, 1, 2, 4]
-    code = ['01', '00', '101', '111']
-    """
-
-    # # img  = [162, 162, 162]
-    # a = np.zeros((lena.size[1], lena.size[0]))
-    # for y in range(lena.size[1]):  # linha
-    #     for x in range(lena.size[0]):  # coluna
-    #         for i in range(len(idx)):  #
-    #             if img[y][x] == idx[i]:
-    #                 a[y][x] = code[i]
-    #
-    #
-    #                 #B
