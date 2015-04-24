@@ -132,7 +132,7 @@ def write(code, file_name):
     file_w.write(img)
     file_w.close()
 
-def decompress(symb, table, bits):
+def decompress2(symb, table, bits):
     word = ''
     aux = ''
     for i in range(len(bits)):
@@ -142,6 +142,26 @@ def decompress(symb, table, bits):
                 word += symb[j]
                 aux = ''
     return word
+
+#code = [0,1,1,0,0,1,1,0,0,]
+#dic = {'10':24, '11':25}
+def decompress(code, dic):
+    aux = ''
+    size = [512,512]
+    decomp_img = np.zeros((size[0],size[1]))
+    x = 0
+    y = 0
+    for i in range(len(code)):
+        aux+=code[i]
+        for j in dic:
+            if aux == j:
+                decomp_img[y][x] == dic[j]
+                x+=1
+                aux = ''
+                if x>size[0]-1:
+                    x=0
+                    y+=1
+
 
 # main
 if __name__ == "__main__":
