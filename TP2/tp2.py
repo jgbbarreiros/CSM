@@ -159,15 +159,14 @@ def decompress(code, dic):
     size = [512,512]
     decomp_img = np.zeros((size[0],size[1]))
     for y in range(size[0]): # linha
-        print decomp_img
         for x in range(size[1]): # coluna
             for i in range(pos, len(code)):
-                symb += str(code[pos])
-                # print symb
+                symb += str(code[i])
                 if dic.get(symb) != None:
+                    #print symb
                     decomp_img[y][x] = dic.get(symb)
                     symb = ""
-                    pos = i
+                    pos = i+1
                     break
     return decomp_img
 
@@ -234,7 +233,7 @@ if __name__ == "__main__":
     print
 
     lena_comp2 = read('lena.txt')
-    print lena_comp2
+    print lena_comp2[:7]
     print len(lena_comp2)
 
     for i in range(len(lena_comp2)):
@@ -243,6 +242,4 @@ if __name__ == "__main__":
             print lena_comp2[i]
 
     dic_inv = {v: k for k, v in lena_dic.items()}
-    print dic_inv
-
     decompress(lena_comp2, dic_inv)
