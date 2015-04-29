@@ -25,6 +25,7 @@ def shannonFano(simbols, prob):
     symb = codeTree(zip(*s)[0])
     return [dict(zip(data, symb)), dict(zip(symb, data))]
 
+
 def codeTree(prob):
     l = 0
     r = 0
@@ -45,7 +46,8 @@ def codeTree(prob):
         fr = codeTree(r)
         for i in range(len(fr)):
             fr[i] = '1' + str(fr[i])
-    return fl+fr
+    return fl + fr
+
 
 def compress(data, dic):
     code = []
@@ -53,15 +55,18 @@ def compress(data, dic):
         code += map(int, dic.get(data[i]))
     return code
 
+
 def write(seqBits, fileName):
     packed = np.packbits(seqBits)
     np.save(fileName, packed)
     return packed
 
+
 def read(fileName):
     compressedFile = np.load(fileName)
     seqBits = np.unpackbits(compressedFile)
     return seqBits
+
 
 def decompress(seqBits, dic):
     data = []
@@ -73,14 +78,15 @@ def decompress(seqBits, dic):
             symb = ''
     return data
 
+
 def calcEntropy(prob):
     entropy = 0
     total = sum(prob)
 
     for i in range(len(prob)):
-        probs = prob[i]/float(total)
+        probs = prob[i] / float(total)
         if probs != 0.0:
-            entropy +=  probs*math.log(probs, 2)
+            entropy += probs * math.log(probs, 2)
     return -entropy
 
 
@@ -88,19 +94,19 @@ def calcAverageBitSymb(dic):
     totalBits = 0
     for value in dic:
         totalBits += len(value)
-    razao = totalBits/len(dic)
+    razao = totalBits / len(dic)
     return razao
 
 
 def calcEfficiency(entropia, media):
-    eficiencia = entropia/float(media)
+    eficiencia = entropia / float(media)
     return eficiencia
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     img = Image.open("lena.tiff")
 
-    #create histogram
+    # create histogram
     hist = img.histogram()
     plt.plot(hist)
 
@@ -109,7 +115,7 @@ if __name__ == "__main__":
 
     # Shannon-Fano coding
     t0 = time()
-    codeDictionaries = shannonFano(np.arange(0,256),hist)
+    codeDictionaries = shannonFano(np.arange(0, 256), hist)
     t1 = time()
     print "time:" + str(t1 - t0)
 
@@ -137,4 +143,4 @@ if __name__ == "__main__":
     # print imgData1
     sizeIni = path.getsize('lena.tiff')
     sizeEnd = path.getsize('lena.npy')
-    print "taxa: " + str(1.* sizeIni / sizeEnd)
+    print "taxa: " + str(1. * sizeIni / sizeEnd)
