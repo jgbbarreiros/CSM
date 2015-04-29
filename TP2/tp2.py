@@ -23,7 +23,8 @@ def shannonFano(simbols, prob):
     s = sorted(probNoZeros, key=lambda x: -x[0])
     data = zip(*s)[1]
     symb = codeTree(zip(*s)[0])
-    return [dict(zip(data, symb)), [list(c) for c in zip(data, symb)]]
+    # [list(c) for c in zip(data, symb)]
+    return [dict(zip(data, symb)), dict(zip(symb, data))]
 
 def codeTree(prob):
     l = 0
@@ -38,13 +39,13 @@ def codeTree(prob):
     else:
         fl = codeTree(l)
         for i in range(len(fl)):
-            fl[i] = '0' + fl[i]
+            fl[i] = '0' + str(fl[i])
     if len(r) == 1:
         fr = ['1']
     else:
         fr = codeTree(r)
         for i in range(len(fr)):
-            fr[i] = '1' + fr[i]
+            fr[i] = '1' + str(fr[i])
     return fl+fr
 
 def compress(data, table):
@@ -68,11 +69,9 @@ def decompress(seqBits, table):
     symb = ''
     for i in range(len(seqBits)):
         symb += str(seqBits[i])
-        for j in range(len(table)):
-            if symb == table[j][1]:
-                data.append(table[j][1])
-                symb = ''
-                break
+        if table.has_key(symb):
+            data.append(table.get(symb))
+            symb = ''
     return data
 
 def calcEntropy(prob):
@@ -103,26 +102,26 @@ if __name__ == "__main__":
     img = Image.open("lena.tiff")
 
     #create histogram
-    h = img.histogram()
-    plt.plot(h)
+    hist = img.histogram()
+    plt.plot(hist)
 
     # convert image into a sequence
     imgData0 = img.getdata()
 
     # Shannon-Fano coding
     t0 = time()
-    codeTables = shannonFano(np.arange(0,256),h)
+    codeTables = shannonFano(np.arange(0,256),hist)
     t1 = time()
     print "time:" + str(t1 - t0)
 
-    entropia = calcEntropy(h)
+    entropia = calcEntropy(hist)
     print 'Entropy = ' + str(entropia)
 
-    media = calcAverageBitSymb(codeTables[1])
-    print 'Media de bits por simbolo = ' + str(media)
+    # media = calcAverageBitSymb(codeTables[1])
+    # print 'Media de bits por simbolo = ' + str(media)
 
-    eficiencia = calcEficiencia(entropia, media)
-    print 'Eficiencia = ' + str(eficiencia)
+    # eficiencia = calcEficiencia(entropia, media)
+    # print 'Eficiencia = ' + str(eficiencia)
 
     # codifica e grava ficheiro
     seqBit0 = compress(imgData0, codeTables[0])
@@ -136,6 +135,7 @@ if __name__ == "__main__":
     t3 = time()
     print "time: " + str(t3 - t2)
 
+    # print imgData1
     sizeIni = path.getsize('lena.tiff')
     sizeEnd = path.getsize('lena.npy')
     print "taxa: " + str(1.* sizeIni / sizeEnd)
