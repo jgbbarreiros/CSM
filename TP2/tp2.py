@@ -23,7 +23,6 @@ def shannonFano(simbols, prob):
     s = sorted(probNoZeros, key=lambda x: -x[0])
     data = zip(*s)[1]
     symb = codeTree(zip(*s)[0])
-    # [list(c) for c in zip(data, symb)]
     return [dict(zip(data, symb)), dict(zip(symb, data))]
 
 def codeTree(prob):
@@ -48,10 +47,10 @@ def codeTree(prob):
             fr[i] = '1' + str(fr[i])
     return fl+fr
 
-def compress(data, table):
+def compress(data, dic):
     code = []
     for i in range(len(data)):
-        code += map(int, table.get(data[i]))
+        code += map(int, dic.get(data[i]))
     return code
 
 def write(seqBits, fileName):
@@ -64,13 +63,13 @@ def read(fileName):
     seqBits = np.unpackbits(compressedFile)
     return seqBits
 
-def decompress(seqBits, table):
+def decompress(seqBits, dic):
     data = []
     symb = ''
     for i in range(len(seqBits)):
         symb += str(seqBits[i])
-        if table.has_key(symb):
-            data.append(table.get(symb))
+        if dic.has_key(symb):
+            data.append(dic.get(symb))
             symb = ''
     return data
 
@@ -85,11 +84,11 @@ def calcEntropy(prob):
     return -entropy
 
 
-def calcAverageBitSymb(table):
+def calcAverageBitSymb(dic):
     totalBits = 0
-    for value in table:
+    for value in dic:
         totalBits += len(value)
-    razao = totalBits/len(table)
+    razao = totalBits/len(dic)
     return razao
 
 
@@ -110,28 +109,28 @@ if __name__ == "__main__":
 
     # Shannon-Fano coding
     t0 = time()
-    codeTables = shannonFano(np.arange(0,256),hist)
+    codeDictionaries = shannonFano(np.arange(0,256),hist)
     t1 = time()
     print "time:" + str(t1 - t0)
 
     entropia = calcEntropy(hist)
     print 'Entropy = ' + str(entropia)
 
-    media = calcAverageBitSymb(codeTables[1])
+    media = calcAverageBitSymb(codeDictionaries[1])
     print 'Media de bits por simbolo = ' + str(media)
 
     eficiencia = calcEfficiency(entropia, media)
     print 'Eficiencia = ' + str(eficiencia)
 
     # codifica e grava ficheiro
-    seqBit0 = compress(imgData0, codeTables[0])
+    seqBit0 = compress(imgData0, codeDictionaries[0])
     write(seqBit0, 'lena')
     t2 = time()
     print "time:" + str(t2 - t1)
 
     # lê ficheiro e descodifica
     seqBit1 = read('lena.npy')
-    imgData1 = decompress(seqBit1, codeTables[1])
+    imgData1 = decompress(seqBit1, codeDictionaries[1])
     t3 = time()
     print "time: " + str(t3 - t2)
 
