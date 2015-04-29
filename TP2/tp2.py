@@ -117,22 +117,22 @@ if __name__ == "__main__":
     t0 = time()
     codeDictionaries = shannonFano(np.arange(0, 256), hist)
     t1 = time()
-    print "time:" + str(t1 - t0)
+    print "time: " + str(t1 - t0)
 
     entropia = calcEntropy(hist)
-    print 'Entropy = ' + str(entropia)
+    print "Entropy = " + str(entropia)
 
     media = calcAverageBitSymb(codeDictionaries[1])
-    print 'Media de bits por simbolo = ' + str(media)
+    print "Media de bits por simbolo = " + str(media)
 
     eficiencia = calcEfficiency(entropia, media)
-    print 'Eficiencia = ' + str(eficiencia)
+    print "Eficiencia = " + str(eficiencia)
 
     # codifica e grava ficheiro
     seqBit0 = compress(imgData0, codeDictionaries[0])
     write(seqBit0, 'lena')
     t2 = time()
-    print "time:" + str(t2 - t1)
+    print "time: " + str(t2 - t1)
 
     # lê ficheiro e descodifica
     seqBit1 = read('lena.npy')
