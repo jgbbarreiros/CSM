@@ -5,6 +5,7 @@ from os import path
 from PIL import Image
 import matplotlib.pyplot as plt
 import numpy as np
+import math
 
 
 def shannonFano(simbols, prob):
@@ -20,10 +21,9 @@ def shannonFano(simbols, prob):
             probNoZeros[pos][1] = simbols[i]
             pos += 1
     s = sorted(probNoZeros, key=lambda x: -x[0])
-    idx = zip(*s)[1]
-    code = codeTree(zip(*s)[0])
-
-    return [list(c) for c in zip(idx, code)]
+    data = zip(*s)[1]
+    symb = codeTree(zip(*s)[0])
+    return [dict(zip(data, symb)), [list(c) for c in zip(data, symb)]]
 
 def codeTree(prob):
     l = 0
@@ -50,9 +50,7 @@ def codeTree(prob):
 def compress(data, table):
     code = []
     for i in range(len(data)):
-        for j in range(len(table)):
-            if data[i] == table[j][0]:
-                code += map(int, table[j][1])
+        code += map(int, table.get(data[i]))
     return code
 
 def write(seqBits, fileName):
@@ -72,8 +70,34 @@ def decompress(seqBits, table):
         symb += str(seqBits[i])
         for j in range(len(table)):
             if symb == table[j][1]:
-                data.append(table[j][0])
+                data.append(table[j][1])
+                symb = ''
+                break
     return data
+
+def calcEntropia(prob):
+    entropia = 0
+    total = sum(prob)
+
+    for i in range(len(prob)):
+        probs = prob[i]/float(total)
+        if probs != 0.0:
+            num = math.log(probs, 2)
+            entropia -= probs*num
+    return entropia
+
+
+def calcMediaBitSymb(tabela):
+    totalBits = 0
+    for i in range(len(tabela)):
+        totalBits += len(tabela[i][1])
+    razao = totalBits/len(tabela)
+    return razao
+
+
+def calcEficiencia(entropia, media):
+    eficiencia = entropia/float(media)
+    return eficiencia
 
 if __name__ == "__main__":
 
@@ -88,19 +112,28 @@ if __name__ == "__main__":
 
     # Shannon-Fano coding
     t0 = time()
-    codeTable = shannonFano(np.arange(0,256),h)
+    codeTables = shannonFano(np.arange(0,256),h)
     t1 = time()
     print "time:" + str(t1 - t0)
 
+    entropia = calcEntropia(h)
+    print 'Entropia = ' + str(entropia)
+
+    media = calcMediaBitSymb(codeTables[1])
+    print 'Media de bits por simbolo = ' + str(media)
+
+    eficiencia = calcEficiencia(entropia, media)
+    print 'Eficiencia = ' + str(eficiencia)
+
     # codifica e grava ficheiro
-    seqBit0 = compress(imgData0, codeTable)
+    seqBit0 = compress(imgData0, codeTables[0])
     write(seqBit0, 'lena')
     t2 = time()
     print "time:" + str(t2 - t1)
 
     # lê ficheiro e descodifica
     seqBit1 = read('lena.npy')
-    imgData1 = decompress(seqBit1, codeTable)
+    imgData1 = decompress(seqBit1, codeTables[1])
     t3 = time()
     print "time: " + str(t3 - t2)
 
