@@ -59,8 +59,8 @@ def write(seqBits, fileName):
     return packed
 
 def read(fileName):
-    file = np.load(fileName)
-    seqBits = np.unpackbits(file)
+    compressedFile = np.load(fileName)
+    seqBits = np.unpackbits(compressedFile)
     return seqBits
 
 def decompress(seqBits, table):
@@ -75,23 +75,22 @@ def decompress(seqBits, table):
                 break
     return data
 
-def calcEntropia(prob):
-    entropia = 0
+def calcEntropy(prob):
+    entropy = 0
     total = sum(prob)
 
     for i in range(len(prob)):
         probs = prob[i]/float(total)
         if probs != 0.0:
-            num = math.log(probs, 2)
-            entropia -= probs*num
-    return entropia
+            entropy +=  probs*math.log(probs, 2)
+    return -entropy
 
 
-def calcMediaBitSymb(tabela):
+def calcAverageBitSymb(table):
     totalBits = 0
-    for i in range(len(tabela)):
-        totalBits += len(tabela[i][1])
-    razao = totalBits/len(tabela)
+    for i in range(len(table)):
+        totalBits += len(table[i][1])
+    razao = totalBits/len(table)
     return razao
 
 
@@ -116,10 +115,10 @@ if __name__ == "__main__":
     t1 = time()
     print "time:" + str(t1 - t0)
 
-    entropia = calcEntropia(h)
-    print 'Entropia = ' + str(entropia)
+    entropia = calcEntropy(h)
+    print 'Entropy = ' + str(entropia)
 
-    media = calcMediaBitSymb(codeTables[1])
+    media = calcAverageBitSymb(codeTables[1])
     print 'Media de bits por simbolo = ' + str(media)
 
     eficiencia = calcEficiencia(entropia, media)
