@@ -87,13 +87,13 @@ def calcEntropy(prob):
 
 def calcAverageBitSymb(table):
     totalBits = 0
-    for i in range(len(table)):
-        totalBits += len(table[i][1])
+    for value in table:
+        totalBits += len(value)
     razao = totalBits/len(table)
     return razao
 
 
-def calcEficiencia(entropia, media):
+def calcEfficiency(entropia, media):
     eficiencia = entropia/float(media)
     return eficiencia
 
@@ -117,11 +117,11 @@ if __name__ == "__main__":
     entropia = calcEntropy(hist)
     print 'Entropy = ' + str(entropia)
 
-    # media = calcAverageBitSymb(codeTables[1])
-    # print 'Media de bits por simbolo = ' + str(media)
+    media = calcAverageBitSymb(codeTables[1])
+    print 'Media de bits por simbolo = ' + str(media)
 
-    # eficiencia = calcEficiencia(entropia, media)
-    # print 'Eficiencia = ' + str(eficiencia)
+    eficiencia = calcEfficiency(entropia, media)
+    print 'Eficiencia = ' + str(eficiencia)
 
     # codifica e grava ficheiro
     seqBit0 = compress(imgData0, codeTables[0])
