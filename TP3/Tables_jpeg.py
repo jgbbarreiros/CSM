@@ -263,6 +263,6 @@ def quality_factor(q):
 
 
 #give a value between 25 and 75
-factor = quality_factor(qualidade) 
+#factor = quality_factor(qualidade)
 
 
