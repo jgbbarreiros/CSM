@@ -60,58 +60,76 @@ if __name__ == "__main__":
     print I
     print
 
-    # first block
-    B = I[0:8, 0:8]
-    print "first block"
-    print B
-    print
+    Blocos = []
 
-    # dct
-    C = dct(dct(B.T*1., norm='ortho').T , norm='ortho')
-    print "DTC:"
-    print C
-    print
+    for x in range(I.shape[0]/8):
+        for y in range(I.shape[1]/8):
+            Blocos.append(I[x*8:(x+1)*8, y*8:(y+1)*8])
 
-    # idct
-    B2 = idct(idct(C.T*1., norm='ortho').T , norm='ortho')
-    print "IDCT (comparacao):"
-    print B[0]
-    print B2[0]
-    print
-
-    # quantificacao
-    qualidade = 50
-    a = quality_factor(qualidade)
-    print "alfa:"
-    print a
-    print
-
-    BQ = np.round(C/(a*Q))
-    print "Bloco quantificado:"
-    print BQ
-    print
-
-    # desquantificao
-    C2 = a*Q*BQ
-    print "Bloco desquantificado (comparacao):"
-    print C[0]
-    print C2[0]
-    print
-
-    # codificador DC
-    DC = BQ[0]
-
-    # codificador AC
+    DC = []
     AC = []
-    numZeros = 0
-    BQ1 = BQ.reshape(64,order='F').astype('int16')
-    for i in range(len(BQ1)-1):
-        i += 1
-        if BQ1[i] != 0:
-            AC.append((numZeros, BQ1[i]))
-            numZeros = 0
+
+    for B in Blocos[:3]:
+        # first block
+        # B = I[0:8, 0:8]
+        # print "first block"
+        # print B
+        # print
+
+        # dct
+        C = dct(dct(B.T*1., norm='ortho').T , norm='ortho')
+        # print "DTC:"
+        # print C
+        # print
+
+        # idct
+        B2 = idct(idct(C.T*1., norm='ortho').T , norm='ortho')
+        # print "IDCT (comparacao):"
+        # print B[0]
+        # print B2[0]
+        # print
+
+        # quantificacao
+        qualidade = 50
+        a = quality_factor(qualidade)
+        # print "alfa:"
+        # print a
+        # print
+
+        BQ = np.round(C/(a*Q))
+        # print "Bloco quantificado:"
+        # print BQ
+        # print
+
+        # desquantificao
+        C2 = a*Q*BQ
+        # print "Bloco desquantificado (comparacao):"
+        # print C[0]
+        # print C2[0]
+        # print
+
+        # codificador DC
+        if len(DC) is 0:
+            DC.append(BQ[0][0])
         else:
-            numZeros +=1
-        if i == (len(BQ1)-1):
-            AC.append((0,0))
-    print AC
+            DC.append(BQ[0][0]-DC[-1])
+
+        # codificador AC
+        AC_e = []
+        numZeros = 0
+        BQ_zz = BQ.flatten(order='F')[np.argsort(ind_zz)].astype(int)
+        for i in range(1, len(BQ_zz)):
+            if BQ_zz[i] != 0:
+                AC_e.append((numZeros, BQ_zz[i]))
+                numZeros = 0
+            else:
+                numZeros +=1
+            if i == len(BQ_zz)-1:
+                AC_e.append((0,0))
+        AC.append(AC_e)
+
+
+
+
+    print 'DC %s' % DC
+    print 'AC %s' % AC
