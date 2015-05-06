@@ -7,112 +7,73 @@ from os import path
 import scipy.misc as mi
 from Tables_jpeg import *
 
-def to_dct(array):
-    B = dct(dct(array.T*1., norm='ortho').T, norm='ortho')
-    return B
+def readImage(name):
+    return mi.imread('lena.tiff')
 
-def to_idct(array):
-    C = idct(idct(array.T*1., norm='ortho').T, norm='ortho')
-    return C
+def getBlocos(img):
+    Blocos = []
+    for x in range(I.shape[0]/8):
+        for y in range(I.shape[1]/8):
+            Blocos.append(I[x*8:(x+1)*8, y*8:(y+1)*8])
+    return Blocos
 
-def comp_dct(img):
-    len_x = len(img) - len(img)%8
-    len_y = len(img[0]) - len(img[0])%8
-    aux = np.zeros((len_x,len_y))
-    for i in range(len_x/8):
-        for j in range(len_y/8):
-            aux[i*8:(i+1)*8,j*0:(j+1)*8]=to_dct(img[i*8:(i+1)*8,j*0:(j+1)*8])
-    return aux
+def getDct(bloc):
+    return dct(dct(bloc.T*1., norm='ortho').T , norm='ortho')
 
-def decomp_idct(dct):
-   aux = np.zeros((len(dct),len(dct)))
-   for i in range(len(dct)/8):
-        for j in range(len(dct)/8):
-            aux[i*8:(i+1)*8,j*0:(j+1)*8] = to_idct(dct[i*8:(i+1)*8,j*0:(j+1)*8])
-   return aux
+def getIdct(dct):
+    return idct(idct(dct.T*1., norm='ortho').T , norm='ortho')
 
 
-
-# if __name__ == "__main__":
-#     i = mi.imread('lena.tiff')
-#     print '---------------original img---------------'
-#     print i
-# 
-#     #a = i[0:8,0:8]
-#     #B = to_dct(a)
-#     #print B
-#     #C = to_idct(B)
-#     #print C
-#     print '---------------img to dct---------------'
-#     print
-#     dct = comp_dct(i)
-#     print dct
-#     print '---------------dct to img---------------'
-#     img = decomp_idct(dct)
-#     print img
-    
 
 if __name__ == "__main__":
     # bloco_dct = dct(dct(bloco.T, norm='ortho').T , norm='ortho')
 
-    I = mi.imread('lena.tiff')
-    print "Image " + str(I.shape) + ":"
-    print I
-    print
+    I = readImage('lena.tiff')
+    print "Image %s:\n%s\n" % (I.shape, I)
 
-    Blocos = []
+    Blocos = getBlocos(I)
 
-    for x in range(I.shape[0]/8):
-        for y in range(I.shape[1]/8):
-            Blocos.append(I[x*8:(x+1)*8, y*8:(y+1)*8])
+    qualidade = 50
+    a = quality_factor(qualidade)
+    print "alfa:\n%s\n" % a
 
-    DC = []
-    AC = []
+    DC, AC = [], []
+    numsDC = []
 
+    # compressao
     for B in Blocos[:3]:
-        # first block
-        # B = I[0:8, 0:8]
-        # print "first block"
-        # print B
-        # print
 
         # dct
-        C = dct(dct(B.T*1., norm='ortho').T , norm='ortho')
-        # print "DTC:"
-        # print C
-        # print
+        C = getDct(B)
+        # print "DCT:\n%s\n" % C
 
         # idct
-        B2 = idct(idct(C.T*1., norm='ortho').T , norm='ortho')
-        # print "IDCT (comparacao):"
-        # print B[0]
-        # print B2[0]
-        # print
+        # B2 = idct(idct(C.T*1., norm='ortho').T , norm='ortho')
+        # print "IDCT (comparacao):\n%s\n%s\n" % (B, B2)
 
         # quantificacao
-        qualidade = 50
-        a = quality_factor(qualidade)
-        # print "alfa:"
-        # print a
-        # print
-
         BQ = np.round(C/(a*Q))
-        # print "Bloco quantificado:"
-        # print BQ
-        # print
+        # print "Bloco quantificado:\n%s\n" % BQ
 
         # desquantificao
-        C2 = a*Q*BQ
-        # print "Bloco desquantificado (comparacao):"
-        # print C[0]
-        # print C2[0]
-        # print
+        # C2 = a*Q*BQ
+        # print "Bloco desquantificado (comparacao):\n%s\n%s\n" % (C, C2)
 
         # codificador DC
-        if len(DC) is 0:
-            DC.append(BQ[0][0])
+        numDC = BQ[0][0]
+        numsDC.append(numDC)
+        if len(DC) is not 0:
+            numDC -= numsDC[-2]
+        print numDC
+        print
+        if numDC < 0:
+            DC_bin = bin(int(numDC))[3:]
+            DC.append((K3.get(len(DC_bin)), DC_bin))
+        elif numDC == 0:
+            DC.append(('00'))
         else:
-            DC.append(BQ[0][0]-DC[-1])
+            DC_bin = bin(int(numDC))[2:]
+            DC.append((K3.get(len(DC_bin)), DC_bin))
 
         # codificador AC
         AC_e = []
@@ -128,8 +89,8 @@ if __name__ == "__main__":
                 AC_e.append((0,0))
         AC.append(AC_e)
 
-
-
-
+    print 'numsDC %s' % numsDC
     print 'DC %s' % DC
     print 'AC %s' % AC
+
+    # descompressao
