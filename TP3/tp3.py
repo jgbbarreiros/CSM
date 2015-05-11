@@ -37,8 +37,7 @@ if __name__ == "__main__":
     a = quality_factor(qualidade)
     print "alfa:\n%s\n" % a
 
-    DC, AC = [], []
-    numsDC = []
+    DC = []
 
     # compressao
     for B in Blocos[:3]:
@@ -52,28 +51,29 @@ if __name__ == "__main__":
         # print "IDCT (comparacao):\n%s\n%s\n" % (B, B2)
 
         # quantificacao
-        BQ = np.round(C/(a*Q))
-        # print "Bloco quantificado:\n%s\n" % BQ
+        BQ = np.round(C/(a*Q)).astype('int')
+        print "Bloco quantificado:\n%s\n" % BQ
 
         # desquantificao
         # C2 = a*Q*BQ
         # print "Bloco desquantificado (comparacao):\n%s\n%s\n" % (C, C2)
 
         # codificador DC
-        numDC = BQ[0][0]
-        numsDC.append(numDC)
-        if len(DC) is not 0:
-            numDC -= numsDC[-2]
-        print numDC
-        print
-        if numDC < 0:
-            DC_bin = bin(int(numDC))[3:]
-            DC.append((K3.get(len(DC_bin)), DC_bin))
-        elif numDC == 0:
-            DC.append(('00'))
+        DC_diff = BQ[0][0] - DC[-1]
+        DC.append(BQ[0][0])
+        if DC_diff < 0:
+            DC_bin = bin(DC_diff)[3:]
+            for i in range(len(DC_bin)):
+                if DC_bin[i] == '0':
+                    DC_bin[i] = '1'
+                else:
+                    DC_bin[i] = '0'
+            DC_code = K3.get(len(DC_bin)) + DC_bin
+        elif DC_diff == 0:
+            DC_code = "00"
         else:
-            DC_bin = bin(int(numDC))[2:]
-            DC.append((K3.get(len(DC_bin)), DC_bin))
+            DC_bin = bin(DC_diff)[2:]
+            DC_code = K3.get(len(DC_bin)) + DC_bin
 
         # codificador AC
         AC_e = []
@@ -89,7 +89,7 @@ if __name__ == "__main__":
                 AC_e.append((0,0))
         AC.append(AC_e)
 
-    print 'numsDC %s' % numsDC
+    print 'numsDC %s' % DC
     print 'DC %s' % DC
     print 'AC %s' % AC
 
