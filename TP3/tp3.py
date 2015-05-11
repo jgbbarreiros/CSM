@@ -23,6 +23,11 @@ def getDct(bloc):
 def getIdct(dct):
     return idct(idct(dct.T*1., norm='ortho').T , norm='ortho')
 
+def string_to_array(s):
+    a = np.zeros(len(s),dtype=np.uint8)
+    for i in range(len(s)):
+        a[i]=s[i]
+    return a
 
 
 if __name__ == "__main__":
