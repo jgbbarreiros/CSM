@@ -44,6 +44,17 @@ def twos_complement(bin):
             comp += '0'
     return comp
 
+def write(seqBits, fileName):
+    packed = np.packbits(seqBits)
+    np.save(fileName, packed)
+    return packed
+
+
+def read(fileName):
+    compressedFile = np.load(fileName)
+    seqBits = np.unpackbits(compressedFile)
+    return seqBits
+
 
 if __name__ == "__main__":
     # bloco_dct = dct(dct(bloco.T, norm='ortho').T , norm='ortho')
@@ -65,7 +76,7 @@ if __name__ == "__main__":
 
         # dct
         C = getDct(B)
-        # print "DCT:\n%s\n" % C
+        print "DCT:\n%s\n" % C
 
         # idct
         # B2 = idct(idct(C.T*1., norm='ortho').T , norm='ortho')
@@ -73,7 +84,7 @@ if __name__ == "__main__":
 
         # quantificacao
         BQ = np.round(C/(a*Q)).astype('int')
-        print "Bloco quantificado:\n%s\n" % BQ
+        # print "Bloco quantificado:\n%s\n" % BQ
 
         # desquantificao
         # C2 = a*Q*BQ
@@ -84,6 +95,7 @@ if __name__ == "__main__":
             DC_diff = BQ[0][0] - DC[-1]
         else:
             DC_diff = BQ[0][0]
+        print "DC = %s" % DC_diff
         DC.append(BQ[0][0])
         DC_code = ''
         if DC_diff < 0:
@@ -101,18 +113,22 @@ if __name__ == "__main__":
         AC_code = ''
         numZeros = 0
         BQ_zz = BQ.flatten(order='F')[np.argsort(ind_zz)].astype(int)
-        print BQ_zz
+        # print BQ_zz
+        print "AC = ",
         for i in range(1, len(BQ_zz)):
             if BQ_zz[i] != 0:
                 AC_code += K5.get((numZeros, abs(BQ_zz[i])))
-                print (numZeros, abs(BQ_zz[i]))
+                print (numZeros, abs(BQ_zz[i])),
+                # print "---0"
                 if BQ_zz[i] < 0:
                     AC_bin = bin(BQ_zz[i])[3:]
                     AC_code += twos_complement(AC_bin)
-                    print twos_complement(AC_bin)
+                    print twos_complement(AC_bin),
+                    # print "---1"
                 elif BQ_zz[i] > 0:
                     AC_code += bin(BQ_zz[i])[2:]
-                    print bin(BQ_zz[i])[2:]
+                    print BQ_zz[i],
+                    # print "---2"
                 numZeros = 0
             else:
                 if sum(BQ_zz[i:]!=0) == 0:
@@ -121,7 +137,7 @@ if __name__ == "__main__":
                     break
                 if (i + 15) < len(BQ_zz) and sum(BQ_zz[i:i+15]!=0) == 0:
                     AC_code += K5.get((15,BQ_zz[i+15]))
-                    print (15,BQ_zz[i+15])
+                    print (15,BQ_zz[i+15]),
                     i += 16
                 numZeros +=1
 
@@ -129,7 +145,10 @@ if __name__ == "__main__":
 
         print 'DC_code %s' % DC_code
         print 'AC_code %s' % AC_code
+        print "\n--------------------------"
 
     print 'code %s' % code
+
+    write(code, 'lena')
 
     # descompressao
