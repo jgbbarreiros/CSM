@@ -23,6 +23,18 @@ def getDct(bloc):
 def getIdct(dct):
     return idct(idct(dct.T*1., norm='ortho').T , norm='ortho')
 
+
+def snr_practical(s, eq):
+    """
+    s = signal
+    eq = erro quantificacao
+    ps = soma das amostras (de um sinal) ao quadrado / comprimento do sinal
+    pr = soma do erro de quantificacao ao quadrado / comprimento do erro de quant
+    """
+    ps = np.sum(s ** 2) / len(s)
+    pr = np.sum(eq ** 2) / len(eq)
+    return 10 * np.log10(ps/pr)
+
 def twos_complement(bin):
     comp = ''
     for i in range(len(bin)):
@@ -31,7 +43,6 @@ def twos_complement(bin):
         else:
             comp += '0'
     return comp
-
 
 
 if __name__ == "__main__":
