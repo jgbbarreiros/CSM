@@ -23,6 +23,15 @@ def getDct(bloc):
 def getIdct(dct):
     return idct(idct(dct.T*1., norm='ortho').T , norm='ortho')
 
+def twos_complement(bin):
+    comp = ''
+    for i in range(len(bin)):
+        if bin[i] == '0':
+            comp += '1'
+        else:
+            comp += '0'
+    return comp
+
 
 
 if __name__ == "__main__":
@@ -38,6 +47,7 @@ if __name__ == "__main__":
     print "alfa:\n%s\n" % a
 
     DC = []
+    code = []
 
     # compressao
     for B in Blocos[:3]:
@@ -59,38 +69,56 @@ if __name__ == "__main__":
         # print "Bloco desquantificado (comparacao):\n%s\n%s\n" % (C, C2)
 
         # codificador DC
-        DC_diff = BQ[0][0] - DC[-1]
+        if len(DC) != 0:
+            DC_diff = BQ[0][0] - DC[-1]
+        else:
+            DC_diff = BQ[0][0]
         DC.append(BQ[0][0])
+        DC_code = ''
         if DC_diff < 0:
             DC_bin = bin(DC_diff)[3:]
-            for i in range(len(DC_bin)):
-                if DC_bin[i] == '0':
-                    DC_bin[i] = '1'
-                else:
-                    DC_bin[i] = '0'
-            DC_code = K3.get(len(DC_bin)) + DC_bin
+            DC_code += K3.get(len(DC_bin)) + twos_complement(DC_bin)
         elif DC_diff == 0:
-            DC_code = "00"
+            DC_code += "00"
         else:
             DC_bin = bin(DC_diff)[2:]
-            DC_code = K3.get(len(DC_bin)) + DC_bin
+            DC_code += K3.get(len(DC_bin)) + DC_bin
+
+        code += map(int, DC_code)
 
         # codificador AC
-        AC_e = []
+        AC_code = ''
         numZeros = 0
         BQ_zz = BQ.flatten(order='F')[np.argsort(ind_zz)].astype(int)
+        print BQ_zz
         for i in range(1, len(BQ_zz)):
             if BQ_zz[i] != 0:
-                AC_e.append((numZeros, BQ_zz[i]))
+                AC_code += K5.get((numZeros, abs(BQ_zz[i])))
+                print (numZeros, abs(BQ_zz[i]))
+                if BQ_zz[i] < 0:
+                    AC_bin = bin(BQ_zz[i])[3:]
+                    AC_code += twos_complement(AC_bin)
+                    print twos_complement(AC_bin)
+                elif BQ_zz[i] > 0:
+                    AC_code += bin(BQ_zz[i])[2:]
+                    print bin(BQ_zz[i])[2:]
                 numZeros = 0
             else:
+                if sum(BQ_zz[i:]!=0) == 0:
+                    AC_code += K5.get((0,0))
+                    print (0,0)
+                    break
+                if (i + 15) < len(BQ_zz) and sum(BQ_zz[i:i+15]!=0) == 0:
+                    AC_code += K5.get((15,BQ_zz[i+15]))
+                    print (15,BQ_zz[i+15])
+                    i += 16
                 numZeros +=1
-            if i == len(BQ_zz)-1:
-                AC_e.append((0,0))
-        AC.append(AC_e)
 
-    print 'numsDC %s' % DC
-    print 'DC %s' % DC
-    print 'AC %s' % AC
+        code += map(int, AC_code)
+
+        print 'DC_code %s' % DC_code
+        print 'AC_code %s' % AC_code
+
+    print 'code %s' % code
 
     # descompressao
