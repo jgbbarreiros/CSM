@@ -135,10 +135,12 @@ if __name__ == "__main__":
                     # print "---2"
                 numZeros = 0
             else:
+                #se do i para a frente for tudo zero
                 if sum(BQ_zz[i:]!=0) == 0:
                     AC_code += K5.get((0,0))
                     print (0,0)
                     break
+                #se tivermos dentro do len e se nos proximos 15 forem todos zero
                 if (i + 15) < len(BQ_zz) and sum(BQ_zz[i:i+15]!=0) == 0:
                     AC_code += K5.get((15,len(bin(abs(BQ_zz[i+15]))[2:])))
                     print (15,len(bin(abs(BQ_zz[i+15]))[2:])),
