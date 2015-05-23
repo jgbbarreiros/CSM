@@ -68,34 +68,44 @@ def unblockshaped(arr, h, w):
                .swapaxes(1,2)
                .reshape(h, w))
 
-def decompress(seqBits, K3_inv, K5_inv):
+def decode(seqBits, K3_inv, K5_inv):
     blocos = []
     bloco = np.zeros(64)
     bloco_pos = 1
     symb = ''
-    DC = True
+    isDC = True
     # for i in range(len(seqBits)):
     i = 0
+    DC = []
     while i < len(seqBits):
         symb += str(seqBits[i])
-        if  DC:
+        if  isDC:
             if K3_inv.has_key(symb):
                 size = K3_inv.get(symb)
-                num_bin = ''.join(map(str, seqBits[i+1:i+1+size]))
-                num =int(num_bin, 2)
-                if num_bin[0] == 0:
-                    num *= -1
-                bloco[0] = num
+                if size is 0:
+                    num = 0
+                else:
+                    num_bin = ''.join(map(str, seqBits[i+1:i+1+size]))
+                    if num_bin[0] == '0':
+                        num_bin = '-'+twos_complement(num_bin)
+                    num = int(num_bin, 2)
+                    if num_bin[0] == 0:
+                        num *= -1
+                if len(DC) > 0:
+                    bloco[0] = DC[-1] + num
+                else:
+                    bloco[0] = num
+                DC.append(bloco[0])
                 i += size
                 symb = ''
-                DC = False
+                isDC = False
         else:
             if K5_inv.has_key(symb):
                 t = K5_inv.get(symb)
                 if t == (0,0):
                     bloco_pos = 1
                     blocos.append(np.reshape(bloco[ind_zz], (8,8)).T.astype(int))
-                    DC = True
+                    isDC = True
                 elif t == (15, 0):
                     bloco_pos += 16
                 else:
@@ -128,9 +138,9 @@ if __name__ == "__main__":
 
 
     Blocos = np.asarray(Blocos)
-    print Blocos.shape
-    Blocos = unblockshaped(Blocos,512,512)
-    print Blocos
+    # print Blocos.shape
+    # Blocos = unblockshaped(Blocos,512,512)
+    # print Blocos
 
 
     qualidade = 50
@@ -141,7 +151,9 @@ if __name__ == "__main__":
     code = []
 
     # compressao
-    for B in Blocos[478:479]:
+    for B in Blocos:
+
+        print "--------------------------"
 
         # dct
         C = getDct(B)
@@ -181,9 +193,9 @@ if __name__ == "__main__":
         # codificador AC
         AC_code = ''
         numZeros = 0
-        print BQ
+        # print BQ
         BQ_zz = BQ.flatten(order='F')[np.argsort(ind_zz)].astype(int)
-        print BQ_zz
+        # print BQ_zz
 
         print "AC =",
         # for i in range(1, len(BQ_zz)):
@@ -229,7 +241,7 @@ if __name__ == "__main__":
 
         # print 'DC_code %s' % DC_code
         # print 'AC_code %s' % AC_code
-        # print "\n--------------------------"
+        print "--------------------------\n"
 
     print 'code %s' % code
 
@@ -237,10 +249,18 @@ if __name__ == "__main__":
     code1 = read('lena.npy')
 
     print 'code %s' % code1
-    BQ1 = decompress(code1, K3_inv, K5_inv)
+    Blocos_Q1 = decode(code1, K3_inv, K5_inv)
 
-    print "Bloco quantificado:\n%s\n" % BQ1
+    print "Bloco quantificado:\n%s\n" % Blocos_Q1
 
+    Blocos1 = []
+
+    for Bloco_Q1 in Blocos_Q1:
+        C2 = a*Q*Bloco_Q1
+        B2 = idct(idct(C2.T*1., norm='ortho').T , norm='ortho')
+        Blocos1.append(B2)
+
+    unblockshaped(Blocos1,512, 512)
 
 
     # descompressao
