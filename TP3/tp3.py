@@ -53,7 +53,54 @@ def write(seqBits, fileName):
 def read(fileName):
     compressedFile = np.load(fileName)
     seqBits = np.unpackbits(compressedFile)
-    return seqBits
+    return seqBits[:-4]
+
+def decompress(seqBits, K3_inv, K5_inv):
+    blocos = []
+    bloco = np.zeros(64)
+    bloco_pos = 1
+    symb = ''
+    DC = True
+    # for i in range(len(seqBits)):
+    i = 0
+    while i < len(seqBits):
+        symb += str(seqBits[i])
+        if  DC:
+            if K3_inv.has_key(symb):
+                size = K3_inv.get(symb)
+                num_bin = ''.join(map(str, seqBits[i+1:i+1+size]))
+                num =int(num_bin, 2)
+                if num_bin[0] == 0:
+                    num *= -1
+                bloco[0] = num
+                i += size
+                symb = ''
+                DC = False
+        else:
+            if K5_inv.has_key(symb):
+                t = K5_inv.get(symb)
+                if t == (0,0):
+                    bloco_pos = 1
+                    blocos.append(np.reshape(bloco[ind_zz], (8,8)).T.astype(int))
+                    DC = True
+                elif t == (15, 0):
+                    bloco_pos += 16
+                else:
+                    num_zeros = t[0]
+                    size = t[1]
+                    num_bin = ''.join(map(str, seqBits[i+1:i+1+size]))
+                    if num_bin[0] == '0':
+                        num_bin = '-'+twos_complement(num_bin)
+                    num = int(num_bin, 2)
+                    bloco[bloco_pos + num_zeros] = num
+                    bloco_pos += num_zeros + 1
+                    i += size
+                symb = ''
+        i += 1
+    #     if dic.has_key(symb):
+    #         data.append(dic.get(symb))
+    #         symb = ''
+    return blocos
 
 
 if __name__ == "__main__":
@@ -72,7 +119,7 @@ if __name__ == "__main__":
     code = []
 
     # compressao
-    for B in Blocos:
+    for B in Blocos[478:479]:
 
         # dct
         C = getDct(B)
@@ -112,9 +159,11 @@ if __name__ == "__main__":
         # codificador AC
         AC_code = ''
         numZeros = 0
+        print BQ
         BQ_zz = BQ.flatten(order='F')[np.argsort(ind_zz)].astype(int)
         print BQ_zz
-        print "AC = ",
+
+        print "AC =",
         # for i in range(1, len(BQ_zz)):
 
         i = 1
@@ -142,8 +191,12 @@ if __name__ == "__main__":
                     break
                 #se tivermos dentro do len e se nos proximos 15 forem todos zero
                 if (i + 15) < len(BQ_zz) and sum(BQ_zz[i:i+15]!=0) == 0:
-                    AC_code += K5.get((15,len(bin(abs(BQ_zz[i+15]))[2:])))
-                    print (15,len(bin(abs(BQ_zz[i+15]))[2:])),
+                    if BQ_zz[i+15] == 0:
+                        AC_code += K5.get((15,0))
+                        print (15,0),
+                    else:
+                        AC_code += K5.get((15,len(bin(abs(BQ_zz[i+15]))[2:])))
+                        print (15,len(bin(abs(BQ_zz[i+15]))[2:])),
                     i += 16
                     numZeros =0
                     pass
@@ -152,12 +205,20 @@ if __name__ == "__main__":
 
         code += map(int, AC_code)
 
-        print 'DC_code %s' % DC_code
-        print 'AC_code %s' % AC_code
-        print "\n--------------------------"
+        # print 'DC_code %s' % DC_code
+        # print 'AC_code %s' % AC_code
+        # print "\n--------------------------"
 
     print 'code %s' % code
 
     write(code, 'lena')
+    code1 = read('lena.npy')
+
+    print 'code %s' % code1
+    BQ1 = decompress(code1, K3_inv, K5_inv)
+
+    print "Bloco quantificado:\n%s\n" % BQ1
+
+
 
     # descompressao

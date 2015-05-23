@@ -216,6 +216,10 @@ K5[(15, 8)] = "1111111111111100"
 K5[(15, 9)] = "1111111111111101"
 K5[(15,10)] = "1111111111111110"
 
+# inverted dicts
+K3_inv = dict((v, k) for k, v in K3.iteritems())
+K5_inv = dict((v, k) for k, v in K5.iteritems())
+
 # zig-zag order
 zigzag = np.zeros((8, 8))
 zigzag[0] = [ 0,  1,  5,  6, 14, 15, 27, 28]
