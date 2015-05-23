@@ -113,9 +113,12 @@ if __name__ == "__main__":
         AC_code = ''
         numZeros = 0
         BQ_zz = BQ.flatten(order='F')[np.argsort(ind_zz)].astype(int)
-        # print BQ_zz
+        print BQ_zz
         print "AC = ",
-        for i in range(1, len(BQ_zz)):
+        # for i in range(1, len(BQ_zz)):
+
+        i = 1
+        while i < len(BQ_zz):
             if BQ_zz[i] != 0:
                 print (numZeros, len(bin(abs(BQ_zz[i]))[2:])),
                 AC_code += K5.get((numZeros, len(bin(abs(BQ_zz[i]))[2:])))
@@ -140,7 +143,10 @@ if __name__ == "__main__":
                     AC_code += K5.get((15,len(bin(abs(BQ_zz[i+15]))[2:])))
                     print (15,len(bin(abs(BQ_zz[i+15]))[2:])),
                     i += 16
+                    numZeros =0
+                    pass
                 numZeros +=1
+            i += 1
 
         code += map(int, AC_code)
 
