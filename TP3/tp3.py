@@ -17,6 +17,12 @@ def getBlocos(img):
             Blocos.append(I[x*8:(x+1)*8, y*8:(y+1)*8])
     return Blocos
 
+def blockshaped(arr, nrows, ncols):
+    h, w = arr.shape
+    return (arr.reshape(h//nrows, nrows, -1, ncols)
+               .swapaxes(1,2)
+               .reshape(-1, nrows, ncols))
+
 def getDct(bloc):
     return dct(dct(bloc.T*1., norm='ortho').T , norm='ortho')
 
@@ -53,7 +59,14 @@ def write(seqBits, fileName):
 def read(fileName):
     compressedFile = np.load(fileName)
     seqBits = np.unpackbits(compressedFile)
-    return seqBits[:-4]
+    return seqBits
+
+def unblockshaped(arr, h, w):
+    #array, 512,512
+    n, nrows, ncols = arr.shape
+    return (arr.reshape(h//nrows, -1, nrows, ncols)
+               .swapaxes(1,2)
+               .reshape(h, w))
 
 def decompress(seqBits, K3_inv, K5_inv):
     blocos = []
@@ -109,7 +122,16 @@ if __name__ == "__main__":
     I = readImage('lena.tiff')
     print "Image %s:\n%s\n" % (I.shape, I)
 
-    Blocos = getBlocos(I)
+    Blocos = blockshaped(I,8,8)
+
+    #Blocos = getBlocos(I)
+
+
+    Blocos = np.asarray(Blocos)
+    print Blocos.shape
+    Blocos = unblockshaped(Blocos,512,512)
+    print Blocos
+
 
     qualidade = 50
     a = quality_factor(qualidade)
