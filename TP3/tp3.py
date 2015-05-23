@@ -55,6 +55,13 @@ def read(fileName):
     seqBits = np.unpackbits(compressedFile)
     return seqBits
 
+def unblockshaped(arr, h, w):
+    #array, 512,512
+    n, nrows, ncols = arr.shape
+    return (arr.reshape(h//nrows, -1, nrows, ncols)
+               .swapaxes(1,2)
+               .reshape(h, w))
+
 
 if __name__ == "__main__":
     # bloco_dct = dct(dct(bloco.T, norm='ortho').T , norm='ortho')
@@ -63,6 +70,13 @@ if __name__ == "__main__":
     print "Image %s:\n%s\n" % (I.shape, I)
 
     Blocos = getBlocos(I)
+
+
+    Blocos = np.asarray(Blocos)
+    print Blocos.shape
+    Blocos = unblockshaped(Blocos,512,512)
+    print Blocos
+
 
     qualidade = 50
     a = quality_factor(qualidade)
@@ -113,7 +127,7 @@ if __name__ == "__main__":
         AC_code = ''
         numZeros = 0
         BQ_zz = BQ.flatten(order='F')[np.argsort(ind_zz)].astype(int)
-        print BQ_zz
+        #print BQ_zz
         print "AC = ",
         # for i in range(1, len(BQ_zz)):
 
@@ -160,4 +174,4 @@ if __name__ == "__main__":
 
     write(code, 'lena')
 
-    # descompressao
+    descompressao
