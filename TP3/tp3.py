@@ -72,11 +72,11 @@ if __name__ == "__main__":
     code = []
 
     # compressao
-    for B in Blocos[:3]:
+    for B in Blocos:
 
         # dct
         C = getDct(B)
-        print "DCT:\n%s\n" % C
+        # print "DCT:\n%s\n" % C
 
         # idct
         # B2 = idct(idct(C.T*1., norm='ortho').T , norm='ortho')
@@ -84,7 +84,7 @@ if __name__ == "__main__":
 
         # quantificacao
         BQ = np.round(C/(a*Q)).astype('int')
-        # print "Bloco quantificado:\n%s\n" % BQ
+        print "Bloco quantificado:\n%s\n" % BQ
 
         # desquantificao
         # C2 = a*Q*BQ
@@ -117,8 +117,9 @@ if __name__ == "__main__":
         print "AC = ",
         for i in range(1, len(BQ_zz)):
             if BQ_zz[i] != 0:
-                AC_code += K5.get((numZeros, abs(BQ_zz[i])))
-                print (numZeros, abs(BQ_zz[i])),
+                print (numZeros, len(bin(abs(BQ_zz[i]))[2:])),
+                AC_code += K5.get((numZeros, len(bin(abs(BQ_zz[i]))[2:])))
+                # print (numZeros, len(bin(abs(BQ_zz[i]))[2:])),
                 # print "---0"
                 if BQ_zz[i] < 0:
                     AC_bin = bin(BQ_zz[i])[3:]
@@ -136,8 +137,8 @@ if __name__ == "__main__":
                     print (0,0)
                     break
                 if (i + 15) < len(BQ_zz) and sum(BQ_zz[i:i+15]!=0) == 0:
-                    AC_code += K5.get((15,BQ_zz[i+15]))
-                    print (15,BQ_zz[i+15]),
+                    AC_code += K5.get((15,len(bin(abs(BQ_zz[i+15]))[2:])))
+                    print (15,len(bin(abs(BQ_zz[i+15]))[2:])),
                     i += 16
                 numZeros +=1
 
