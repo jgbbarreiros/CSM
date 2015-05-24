@@ -249,7 +249,6 @@ if __name__ == "__main__":
     code1 = read('lena.npy')
 
     print 'code %s' % code1
-
     Blocos_Q1 = decode(code1[:len(code1)-2], K3_inv, K5_inv)
     Blocos_Q1_test = np.asarray(Blocos_Q1)
     #shape errada ja aqui

@@ -199,6 +199,16 @@ def decode(seqBits):
     # print
     return blocos
 
+def SNR(original, quantificado):
+
+    original = np.asarray(original).reshape(-1).astype('float')
+    quantificado = np.asarray(quantificado).reshape(-1).astype('float')
+
+    erro = quantificado - original
+    SNR = 10.*np.log10(sum(original**2)/sum(erro**2))
+
+    return SNR
+
 
 def write(seqBits, fileName):
     packed = np.packbits(seqBits)
@@ -257,6 +267,10 @@ if __name__ == "__main__":
     print "tamanho lena.tiff %s" % sizeIni
     print "tamanho lena.npy  %s" % sizeEnd
     print "taxa: %s" % (1. * sizeIni / sizeEnd)
+
+    print ""
+    print "snr"
+    print SNR(I,I1)
 
 
 
