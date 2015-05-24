@@ -249,9 +249,13 @@ if __name__ == "__main__":
     code1 = read('lena.npy')
 
     print 'code %s' % code1
-    Blocos_Q1 = decode(code1, K3_inv, K5_inv)
 
-    print "Bloco quantificado:\n%s\n" % Blocos_Q1
+    Blocos_Q1 = decode(code1[:len(code1)-2], K3_inv, K5_inv)
+    Blocos_Q1_test = np.asarray(Blocos_Q1)
+    #shape errada ja aqui
+    print Blocos_Q1_test.shape
+
+    #print "Bloco quantificado:\n%s\n" % Blocos_Q1
 
     Blocos1 = []
 
@@ -260,7 +264,9 @@ if __name__ == "__main__":
         B2 = idct(idct(C2.T*1., norm='ortho').T , norm='ortho')
         Blocos1.append(B2)
 
-    unblockshaped(Blocos1,512, 512)
+    Blocos1 = np.asarray(Blocos1)
+    print Blocos1.shape
+    #unblockshaped(Blocos1,512, 512)
 
 
     # descompressao
