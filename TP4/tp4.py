@@ -40,21 +40,25 @@ def mae(P, I):
 
 
 def getPImages():
-    # TODO vai buscar todas as images e devolve um array
-    return []
+    # Vai buscar todas as images e devolve um array
+    P_arr = []
+    for i in range(10):
+        P = np.array(Image.open("bola_seq/bola_" + str(i + 2) + ".tiff")).astype('float')
+        P_arr.append(P)
+    return P_arr
 
 
-def search(I, P, type='block'):
+def search(I, P, type='fs'):
     I_blocks = IToBlocks(I) # return blocos de 46x46 (janela de pesquisa)
     P_blocks = PToBlocks(P) # return blocos de 16x16
-    P_coded_arr = [] # array de blocos P codificados
+    Pmc_arr = [] # array de blocos P codificados
     P_vec = [] # array de pares de vectores
     for i in range(len(I_blocks)):
-        P_block_coded, P_block_vec = macroSearch(I_blocks[i], P_blocks[i])
-        P_coded_arr.append(P_block_coded)
+        Pmc_block, P_block_vec = macroSearch(I_blocks[i], P_blocks[i])
+        Pmc_arr.append(Pmc_block)
         P_vec.append(P_block_vec)
-    P_coded = unblock(P_coded_arr)
-    return [P_coded, P_vec]
+    Pmc = unblock(P_coded_arr)
+    return [Pmc, P_vec]
 
 
 def IToBlocks(I):
@@ -62,9 +66,9 @@ def IToBlocks(I):
     return []
 
 
-def PToBlocks(I):
-    # TODO blocos de 16x16
-    return []
+def PToBlocks(P):
+    # blocos de 16x16
+    return blockShaped(P, 16, 16)
 
 
 def macroSearch(I_block, P_block):
@@ -73,7 +77,7 @@ def macroSearch(I_block, P_block):
 
 def blockShaped(arr, nrows, ncols):
     h, w = arr.shape
-    return (arr.reshape(h//nrows, nrows, -1, ncols).swapaxes(1,2).reshape(-1, nrows, ncols))
+    return arr.reshape(h//nrows, nrows, -1, ncols).swapaxes(1,2).reshape(-1, nrows, ncols)
 
 def unblock(P_coded_arr):
     # TODO compor a imagem codificada a partir de uma lista de Blocos 16x16
@@ -109,11 +113,12 @@ if __name__ == "__main__":
     P_coded_arr = []
     P_vec_arr = []
 
-    P = np.array(Image.open("bola_seq/bola_2.tiff")).astype('float')
+    #P = np.array(Image.open("bola_seq/bola_2.tiff")).astype('float')
     P_arr = getPImages()
 
     for P in P_arr:
-        P_coded, P_vec = search(I_exp, P, type='block')
+        Pmc, P_vec = search(I_exp, P, type='fs')
+        P_coded = P - Pmc
         P_coded_arr.append(P_coded)
         P_vec_arr.append(P_vec)
 
