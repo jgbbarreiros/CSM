@@ -59,7 +59,12 @@ def search(I, P, type='block'):
 
 def IToBlocks(I):
     # TODO blocos de 46x46 (janela de pesquisa)
-    return []
+    aux = []
+    #y
+    for j in range(15):
+        for i in range(22):
+            aux.append(I[j*15:46+(j*15)][i*15:46+(i*15)])
+    return aux
 
 
 def PToBlocks(I):
