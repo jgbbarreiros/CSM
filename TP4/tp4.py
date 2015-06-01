@@ -7,6 +7,15 @@ from os import path
 import scipy.misc as mi
 
 
+def blockShaped(arr, nrows, ncols):
+    h, w = arr.shape
+    return arr.reshape(h//nrows, nrows, -1, ncols).swapaxes(1,2).reshape(-1, nrows, ncols)
+
+def unblockShaped(arr, h, w):
+    n, nrows, ncols = arr.shape
+    return arr.reshape(h//nrows, -1, nrows, ncols).swapaxes(1,2).reshape(h, w)
+
+
 def expand(arr, px, corner='pixel'):
     ex_arr = np.zeros((arr.shape[0]+2*px, arr.shape[1]+2*px))
     ex_arr[px:h+px, px:w+px] = arr # inserir imagem i no meio
@@ -50,43 +59,44 @@ def getPImages():
 
 def search(I, P, type='fs'):
     I_blocks = IToBlocks(I) # return blocos de 46x46 (janela de pesquisa)
-    P_blocks = PToBlocks(P) # return blocos de 16x16
-    Pmc_arr = [] # array de blocos P codificados
+    P_blocks = blockShaped(P, 16, 16) # return blocos de 16x16
+    Pmc_blocks = [] # array de blocos P codificados
     P_vec = [] # array de pares de vectores
     for i in range(len(I_blocks)):
         Pmc_block, P_block_vec = macroSearch(I_blocks[i], P_blocks[i])
-        Pmc_arr.append(Pmc_block)
+        Pmc_blocks.append(Pmc_block)
         P_vec.append(P_block_vec)
-    Pmc = unblock(P_coded_arr)
+    Pmc = unblockShaped(np.asarray(Pmc_blocks), P.shape[0], P.shape[1])
     return [Pmc, P_vec]
 
 
 def IToBlocks(I):
-    # TODO blocos de 46x46 (janela de pesquisa)
-    aux = []
-    #y
-    for j in range(15):
-        for i in range(22):
-            aux.append(I[j*15:46+(j*15)][i*15:46+(i*15)])
-    return aux
-
-
-def PToBlocks(P):
-    # blocos de 16x16
-    return blockShaped(P, 16, 16)
+    # blocos de 46x46 (janela de pesquisa)
+    macroBlocks = []
+    for y in range(0, I.shape[0]-30, 16):
+        for x in range(0, I.shape[1]-30, 16):
+            macroBlocks.append(I[y:y+46, x:x+46])
+    return macroBlocks
 
 
 def macroSearch(I_block, P_block):
-    # TODO pequisa de Blocos P em macro Bloco I e encontar a menor "mae"
-    return [] # bloco codificado e o respectivo par de vectores
+    # pequisa de Blocos P em macro Bloco I e encontar a menor "mae"
+    h, w = I_block.shape
+    min_dif = mae(P_block, I_block[:16, :16])
+    min_block = I_block[:16, :16]
+    min_vec = [-15, -15]
+    for y in range(h-16):
+        for x in range(w-16):
+            if x == 0 and y == 0:
+                pass
+            new_block = I_block[y:y+16, x:x+16]
+            new_dif = mae(P_block, new_block)
+            if new_dif < min_dif:
+                min_dif = new_dif
+                min_block = new_block
+                min_vec = [x-15, y-15]
+    return [min_block, min_vec]
 
-def blockShaped(arr, nrows, ncols):
-    h, w = arr.shape
-    return arr.reshape(h//nrows, nrows, -1, ncols).swapaxes(1,2).reshape(-1, nrows, ncols)
-
-def unblock(P_coded_arr):
-    # TODO compor a imagem codificada a partir de uma lista de Blocos 16x16
-    return # bloco codificado
 
 
 if __name__ == "__main__":
@@ -101,8 +111,8 @@ if __name__ == "__main__":
     h = I.shape[0] # 240
     w = I.shape[1] # 352
     I_exp = expand(I, 15, corner='pixel')
-    plt.figure("Search image")
-    plt.imshow((I_exp), cmap='gray', interpolation='none')
+    # plt.figure("Search image")
+    # plt.imshow((I_exp), cmap='gray', interpolation='none')
 
     ## IMAGEM 2 - SUBTRACAO
     # P = np.array(Image.open("bola_seq/bola_2.tiff")).astype('float')
@@ -117,14 +127,22 @@ if __name__ == "__main__":
     ## IMAGEM 2 - MOVIMENTO
     P_coded_arr = []
     P_vec_arr = []
-
-    #P = np.array(Image.open("bola_seq/bola_2.tiff")).astype('float')
     P_arr = getPImages()
+    # P_arr = [I]
 
     for P in P_arr:
         Pmc, P_vec = search(I_exp, P, type='fs')
-        P_coded = P - Pmc
+        # print I - Pmc
+        # print P_vec
+        P_coded = P - Pmc + 127
         P_coded_arr.append(P_coded)
         P_vec_arr.append(P_vec)
+
+    print P_coded_arr
+    print P_vec_arr
+
+    for i in range(len(P_coded_arr)):
+        plt.figure("Image " + str(i+2))
+        plt.imshow((P_coded_arr[i]), cmap='gray', interpolation='none')
 
     plt.show()
