@@ -120,14 +120,26 @@ def compRate():
     size_comp = sum(path.getsize("ex3/comp/bola_"+str(i+1)+".jpeg") for i in range(11))
     return float(size_init)/size_comp
 
-def snr(originals, finals):
+def calcSnr(original_imgs, decomp_imgs):
     snrs = []
     for i in range(11):
-        original = np.asarray(originals[i]).reshape(-1).astype('float')
-        quantificado = np.asarray(finals[i]).reshape(-1).astype('float')
+        original = np.asarray(original_imgs[i]).reshape(-1).astype('float')
+        quantificado = np.asarray(decomp_imgs[i]).reshape(-1).astype('float')
         erro = quantificado - original
         snrs.append(10.*np.log10(sum(original**2)/sum(erro**2)))
     return snrs
+
+def calcEnergy(decomp_imgs):
+    return [np.sum(np.asarray(decomp_imgs[i]).astype('float')**2)/np.sum(np.asarray(decomp_imgs[i]).astype('float'))**2 for i in range(11)]
+
+def calcEntropy(decomp_imgs):
+    entropys = []
+    for i in range(11):
+        h = np.asarray(decomp_imgs[i].histogram())
+        prob = (h*1.)/np.sum(h)
+        entropy = - np.sum([ 0 if i == 0 else i*np.log2(i) for i in prob])
+        entropys.append(entropy)
+    return entropys
 
 
 if __name__ == "__main__":
@@ -153,6 +165,8 @@ if __name__ == "__main__":
     print "Compression rate: %s" % compRate()
     print "Compression time: %s" % (t1-t0)
     print "Decompression time: %s" % (t3-t2)
-    print "Signal noise ratio: %s" % snr(imgs, decomp_imgs)
+    print "Signal noise ratio: %s" % calcSnr(imgs, decomp_imgs)
+    print "Energy: %s" % calcEnergy(decomp_imgs)
+    print "Entropy: %s" % calcEntropy(decomp_imgs)
 
     plt.show()
