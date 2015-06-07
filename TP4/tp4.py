@@ -142,7 +142,7 @@ if __name__ == "__main__":
     # Guardar a Imagem I codificada
     img1.save("ex3/bola_1.jpeg", "JPEG", quality=50)
     # Le Imagem I codificada
-    I_arr = mi.imread("ex3/bola_1.jpeg").astype('float')
+    I_arr = np.array(Image.open("ex3/bola_1.jpeg")).astype('float')
     print "done"
     # Imagem I como array
     I = np.array(I_arr).astype('float')
@@ -173,10 +173,10 @@ if __name__ == "__main__":
     for P_coded in P_coded_arr:
         Pmc = compose(I_exp, P_vecs_arr[img_counter])
         P1 = P_coded + Pmc - 127
-        plt.figure("Image " + str(img_counter+2))
-        plt.imshow((P1), cmap='gray', interpolation='none')
-        img2 = Image.fromarray(P1.astype('uint8'))
-        img2.save("bola_" + str(img_counter+2) + ".bmp", "bmp")
+        # plt.figure("Image " + str(img_counter+2))
+        # plt.imshow((P1), cmap='gray', interpolation='none')
+        # img2 = Image.fromarray(P1.astype('uint8'))
+        # img2.save("bola_" + str(img_counter+2) + ".bmp", "bmp")
         img_counter += 1
 
     # for i in range(len(P_coded_arr)):
