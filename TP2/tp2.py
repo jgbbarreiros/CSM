@@ -130,6 +130,7 @@ if __name__ == "__main__":
 
     # codifica e grava ficheiro
     seqBit0 = compress(imgData0, codeDictionaries[0])
+    print seqBit0[0:10]
     write(seqBit0, 'lena')
     t2 = time()
     print "time: " + str(t2 - t1)

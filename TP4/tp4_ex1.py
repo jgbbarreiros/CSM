@@ -37,7 +37,7 @@ def calcSnr(original_imgs, decomp_imgs):
     return snrs
 
 def calcEnergy(decomp_imgs):
-    return [np.sum(np.asarray(decomp_imgs[i]).astype('float')**2)/np.sum(np.asarray(decomp_imgs[i]).astype('float'))**2 for i in range(11)]
+    return [np.sum(np.asarray(decomp_imgs[i]).astype('float')**2)/(decomp_imgs[i].size[0]*decomp_imgs[i].size[1]) for i in range(11)]
 
 def calcEntropy(decomp_imgs):
     entropys = []

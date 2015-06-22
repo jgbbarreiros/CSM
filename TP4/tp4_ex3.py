@@ -64,6 +64,7 @@ def expand(arr, px):
     ex_arr[:px, px+w:] = np.ones((px, px))*arr[0, -1] # top right corner
     ex_arr[px+h:, :px] = np.ones((px, px))*arr[-1, 0] # bottom left corner
     ex_arr[px+h:, px+w:] = np.ones((px, px))*arr[-1, -1] # bottom right corner
+
     return ex_arr
 
 def search(I, P, search_type='fs'):
@@ -129,13 +130,20 @@ def calcSnr(original_imgs, decomp_imgs):
         snrs.append(10.*np.log10(sum(original**2)/sum(erro**2)))
     return snrs
 
-def calcEnergy(decomp_imgs):
-    return [np.sum(np.asarray(decomp_imgs[i]).astype('float')**2)/np.sum(np.asarray(decomp_imgs[i]).astype('float'))**2 for i in range(11)]
+def calcEnergy(imgs0,comp_imgs):
+    energy = []
+    energy.append(np.sum(np.asarray(imgs0).astype('float')**2)/(imgs0.size[0]*imgs0.size[1]))
+    for i in range(10):
+        energy.append(np.sum((np.asarray(comp_imgs[i]).astype('float')- 127.)**2)/(comp_imgs[i].size[0]*comp_imgs[i].size[1]))
+    return energy
 
-def calcEntropy(decomp_imgs):
+def calcEntropy(imgs0,comp_imgs):
     entropys = []
     for i in range(11):
-        h = np.asarray(decomp_imgs[i].histogram())
+        if i==0:
+            h = np.asarray(imgs0.histogram())
+        else:
+            h = np.asarray(comp_imgs[i-1].histogram())
         prob = (h*1.)/np.sum(h)
         entropy = - np.sum([ 0 if i == 0 else i*np.log2(i) for i in prob])
         entropys.append(entropy)
@@ -166,7 +174,7 @@ if __name__ == "__main__":
     print "Compression time: %s" % (t1-t0)
     print "Decompression time: %s" % (t3-t2)
     print "Signal noise ratio: %s" % calcSnr(imgs, decomp_imgs)
-    print "Energy: %s" % calcEnergy(decomp_imgs)
-    print "Entropy: %s" % calcEntropy(decomp_imgs)
+    print "Energy: %s" % calcEnergy(imgs[0],comp_imgs)
+    print "Entropy: %s" % calcEntropy(imgs[0],comp_imgs)
 
     plt.show()

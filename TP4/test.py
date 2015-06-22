@@ -61,7 +61,7 @@ print valores_formula
 min_val = min([formula(n, l[y][x]) for y in range(len(l)) for x in range(len(l[0]))])
 print min_val
 
-arg_min = min([[(x, y), l] for y in range(len(l)) for x in range(len(l[0]))], key = lambda (y, x): formula(n, l[y][x]))
+arg_min = min([(y, x) for y in range(len(l)) for x in range(len(l[0]))], key = lambda (y, x): formula(n, l[y][x]))
 print arg_min
 
 min_val_arg_min = min([[formula(n, l[y][x]), (y, x), l[y][x]] for y in range(len(l)) for x in range(len(l[0]))])
